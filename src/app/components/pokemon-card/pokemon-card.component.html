@@ -1,0 +1,8 @@
+<ng-container *ngIf="pokemon$ | async as pokemon">
+    <a [routerLink]="['/pokemon', pokemon.name]" class="card-link">
+        <div class="pokemon-card">
+            <img [src]="pokemon.sprites.front_default" [alt]="pokemon.name">
+            <h3>#{{pokemon.id}} {{pokemon.name | titlecase}}</h3>
+        </div>
+    </a>
+</ng-container>

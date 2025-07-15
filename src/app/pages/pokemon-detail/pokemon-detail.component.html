@@ -1,0 +1,19 @@
+<a routerLink="/" class="back-button">← Back</a>
+
+<div *ngIf="pokemon$ | async as pokemon; else loading" class="detail-container">
+  <div class="pokemon-header">
+    <h1 class="pokemon-name">#{{ pokemon.id }} {{ pokemon.name | titlecase }}</h1>
+    <div class="pokemon-types">
+      <span *ngFor="let typeInfo of pokemon.types" class="type-badge type-{{ typeInfo.type.name }}">
+        {{ typeInfo.type.name | titlecase }}
+      </span>
+    </div>
+  </div>
+
+  <img class="pokemon-image" [src]="pokemon.sprites.front_default" [alt]="pokemon.name">
+
+  </div>
+
+<ng-template #loading>
+  <p>Loading...</p>
+</ng-template>
