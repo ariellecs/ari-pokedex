@@ -1,3 +1,27 @@
+<nav class="type-nav" *ngIf="types$ | async as types">
+  <button
+    (click)="filterByType('all')"
+    [class.active]="(selectedType$ | async) === 'all'"
+  >
+    All Pokémons
+  </button>
+  <button
+    *ngFor="let type of types"
+    (click)="filterByType(type.name)"
+    [class.active]="(selectedType$ | async) === type.name"
+    [ngClass]="'type-bg-' + type.name"
+  >
+    {{ type.name | titlecase }}
+  </button>
+</nav>
+
 <div class="pokemon-grid">
-    <app-pokemon-card *ngFor="let pokemon of pokemons$ | async" [pokemonUrl]="pokemon.url"></app-pokemon-card>
+  <app-pokemon-card
+    *ngFor="let pokemon of pokemons$ | async"
+    [pokemonUrl]="pokemon.url"
+  ></app-pokemon-card>
+</div>
+
+<div class="empty-message" *ngIf="(pokemons$ | async)?.length === 0">
+    <p>Sorry, no Pokémons with this type.</p>
 </div>
