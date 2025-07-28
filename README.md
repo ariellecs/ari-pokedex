@@ -1,5 +1,8 @@
 # Ari's Pokédex
 
+A web application built with Angular and data powered by the PokéAPI, featuring the first 151 Pokémon.
+The main goal of this project is to practice and strengthen core concepts of JavaScript, SCSS, and RxJS while exploring component-based architecture and API integration.
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.8.
 
 ## Development server
