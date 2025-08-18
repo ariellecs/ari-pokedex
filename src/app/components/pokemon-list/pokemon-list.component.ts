@@ -2,7 +2,15 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PokemonService } from '../../services/pokemon.service';
 import { PokemonCardComponent } from '../pokemon-card/pokemon-card.component';
-import { BehaviorSubject, map, Observable, switchMap } from 'rxjs';
+import {
+  BehaviorSubject,
+  map,
+  Observable,
+  switchMap,
+  combineLatest,
+  tap,
+  of,
+} from 'rxjs';
 
 @Component({
   selector: 'app-pokemon-list',
@@ -14,10 +22,13 @@ import { BehaviorSubject, map, Observable, switchMap } from 'rxjs';
 export class PokemonListComponent implements OnInit {
   private pokemonService = inject(PokemonService);
 
+  public readonly pageSize = 20;
+  private currentPage = new BehaviorSubject<number>(1);
+  public currentPage$ = this.currentPage.asObservable();
+  public totalPokemons = 0;
+
   private selectedType = new BehaviorSubject<string>('all');
-
   public selectedType$ = this.selectedType.asObservable();
-
   public types$ = this.pokemonService
     .getAllTypes()
     .pipe(map((res) => res.results));
@@ -30,23 +41,39 @@ export class PokemonListComponent implements OnInit {
       return match ? parseInt(match[1], 10) : null;
     };
 
-    this.pokemons$ = this.selectedType.pipe(
-      switchMap((type) => {
+    this.pokemons$ = combineLatest([this.selectedType, this.currentPage]).pipe(
+      switchMap(([type, page]) => {
         if (type === 'all') {
+          const offset = (page - 1) * this.pageSize;
+          this.totalPokemons = 151;
+
+          const remainingPokemons = this.totalPokemons - offset;
+
+          const limit = Math.min(this.pageSize, remainingPokemons);
+
+          if (limit <= 0) {
+            return of([]);
+          }
+
           return this.pokemonService
-            .getPokemons()
+            .getPokemons(limit, offset)
             .pipe(map((response) => response.results));
         } else {
           return this.pokemonService.getPokemonsByType(type).pipe(
             map((response) => {
               const allPokemonsOfType = response.pokemon.map((p) => p.pokemon);
 
-              const filteredPokemons = allPokemonsOfType.filter((pokemon) => {
+              const filteredById = allPokemonsOfType.filter((pokemon) => {
                 const pokemonId = getPokemonIdFromUrl(pokemon.url);
                 return pokemonId !== null && pokemonId <= 151;
               });
 
-              return filteredPokemons;
+              this.totalPokemons = filteredById.length;
+
+              const startIndex = (page - 1) * this.pageSize;
+              const endIndex = startIndex + this.pageSize;
+
+              return filteredById.slice(startIndex, endIndex);
             })
           );
         }
@@ -55,6 +82,18 @@ export class PokemonListComponent implements OnInit {
   }
 
   filterByType(type: string): void {
+    this.currentPage.next(1);
     this.selectedType.next(type);
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.next(page);
+    }
+  }
+
+  totalPages(): number {
+    if (this.totalPokemons === 0) return 1;
+    return Math.ceil(this.totalPokemons / this.pageSize);
   }
 }

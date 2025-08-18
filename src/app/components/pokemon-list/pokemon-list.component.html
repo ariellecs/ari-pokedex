@@ -23,5 +23,23 @@
 </div>
 
 <div class="empty-message" *ngIf="(pokemons$ | async)?.length === 0">
-    <p>Sorry, no Pokémons with this type.</p>
+  <p>Sorry, no Pokémons with this type.</p>
+</div>
+
+<div class="pagination-controls" *ngIf="totalPokemons > pageSize && (currentPage$ | async) as page">
+  <button
+    (click)="goToPage(page - 1)"
+    [disabled]="page === 1"
+  >
+    Previous
+  </button>
+
+  <span> Page {{ page }} of {{ totalPages() }} </span>
+
+  <button
+    (click)="goToPage(page + 1)"
+    [disabled]="page === totalPages()"
+  >
+    Next
+  </button>
 </div>

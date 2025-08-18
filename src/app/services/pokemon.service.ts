@@ -33,8 +33,8 @@ export class PokemonService {
 
   constructor() { }
 
-  getPokemons(limit: number = 151): Observable<PokemonListResponse> {
-    return this.http.get<PokemonListResponse>(`${this.apiUrl}/pokemon?limit=${limit}`);
+  getPokemons(limit: number, offset:number): Observable<PokemonListResponse> {
+    return this.http.get<PokemonListResponse>(`${this.apiUrl}/pokemon?limit=${limit}&offset=${offset}`);
   }
 
   getAllTypes(): Observable<TypeResponse> {
